@@ -46,6 +46,10 @@ int execute_command(char * cmd){
     w = wait();
   } else {//child executes
     execvp(cmdname,args);
+    if (errno){
+      printf("%s is not a recognized command\n",cmdname);
+      errno = 0;
+    }
     exit(0);
   }
   
@@ -71,13 +75,13 @@ int run_cd(char * command){
   
   int r;
   r = chdir(command);
-
+  
   //r is 0 if it works, -1 if not
-  /*
+  
   if(!r){
-    printf("Directory changed!\n");
+    //printf("Directory changed!\n");
   } else {
-    printf("Something went wrong\n");
+    printf("Directory %s not found.\n",command);
   }
-  */
+  
 }
