@@ -7,10 +7,18 @@
 int print_prompt(){
   char * cwd;
   cwd = malloc(sizeof(char)*256);
-  getcwd(cwd,sizeof(cwd));
+  getcwd(cwd,256);
+  //just the current directory
+  char * truncated_prompt;
+  truncated_prompt = malloc(sizeof(char)*256);
+  
+  while(strchr(cwd,'/')){
+    truncated_prompt = strsep(&cwd,"/");
+    //printf("%s\n",cwd);
+  }
   
   printf("%s$: ",cwd);
-  
+
   return 0;
 }
 
@@ -19,9 +27,11 @@ int get_input(){
 
   char * input;
   input = malloc(sizeof(char)*256);
-  fgets(input,sizeof(input),stdin);
+  fgets(input,256,stdin);
 
-  //test
-  printf("This is what you inputted: %s\n",input);
+  //printf("This is what you inputted: %s\n",input);
+  parse_input(input);
+  free(input);
+  return 0;
   
 }
