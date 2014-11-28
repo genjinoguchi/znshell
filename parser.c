@@ -10,10 +10,11 @@ int parse_input(char * input){
   input = strsep(&input,"\n");
   if (check_cd(input)){
     run_cd(input);
+  } else if (check_exit(input)){
+    run_exit(input);
   } else {
     execute_command(input);
   }
-
   
   return 0;
 }
@@ -84,4 +85,18 @@ int run_cd(char * command){
     printf("Directory %s not found.\n",command);
   }
   
+}
+
+//similar in nature to check_cd
+int check_exit(char * command){
+  char * exitloc;
+  exitloc = strstr(command, "exit");
+  if (exitloc == command){
+    return 1;
+  }
+  return 0;
+}
+
+int run_exit(char * command){
+  exit(0);
 }
