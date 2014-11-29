@@ -10,9 +10,10 @@ int parse_input(char * input){
   input = strsep(&input,"\n");
   input = strip_spaces(input);
 
-  printf("input after stripping: %s\n",input);
-  
-  if (check_cd(input)){
+  //printf("input after stripping: %s\n",input);
+  if (check_special(input)){
+
+  } else if (check_cd(input)){
     run_cd(input);
   } else if (check_exit(input)){
     run_exit(input);
@@ -141,3 +142,47 @@ int run_exit(char * command){
   exit(0);
 }
 
+//checks for special characters and executes using them
+int check_special(char * command){
+  if (check_semicolon(command)){
+    return run_multiple_commands(command);
+  } else if (check_redirection(command)){
+
+  }
+  return 0;
+}
+
+//check for ;
+int check_semicolon(char * command){
+  return (long)strchr(command,';');
+}
+
+//run multiple commands with the ;
+int run_multiple_commands(char * command){
+  char * temp;
+  while(command){
+    temp = strsep(&command,";");
+    temp = strip_spaces(temp);
+    execute_command(temp);
+  }
+  
+  return 1;
+}
+
+//for > and < currently
+int check_redirection(char * command){
+  
+  return 0;
+}
+
+//for >
+int check_redirect_output(char * command){
+
+  return 0;
+}
+
+//for <
+int check_redirect_input(char * command){
+
+  return 0;
+}
