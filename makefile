@@ -11,5 +11,5 @@ parser.o: parser.c prompt.h parser.h
 	gcc -c parser.c
 
 clean:
-	rm *~
 	rm *.o
+	rm *~
