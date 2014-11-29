@@ -153,7 +153,7 @@ int check_special(char * command){
 }
 
 //check for ;
-int check_semicolon(char * command){
+long check_semicolon(char * command){
   return (long)strchr(command,';');
 }
 
@@ -171,18 +171,36 @@ int run_multiple_commands(char * command){
 
 //for > and < currently
 int check_redirection(char * command){
-  
+  check_redirect_output(command);
+  check_redirect_input(command);
   return 0;
 }
 
-//for >
+//for >, runs redirection procedure if true
 int check_redirect_output(char * command){
-
+  if (strchr(command,'>')){
+    //stores the actual command
+    char * cmd;
+ 
+    //command now has the file path
+    cmd = strsep(&command,">");
+    cmd = strip_spaces(cmd);
+    command = strip_spaces(command);
+    //temporary stdout file descriptor
+    int stdoutfd;
+    stdoutfd = dup(STDOUT_FILENO);
+    //target file descriptor
+    int targetfd;
+    
+    return 1;
+  }
   return 0;
 }
 
-//for <
+//for <, runs redirection procedure if true
 int check_redirect_input(char * command){
-
+  if (strchr(command,'<')){
+    return 2;
+  }
   return 0;
 }

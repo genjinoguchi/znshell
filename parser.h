@@ -18,7 +18,7 @@ int run_exit(char * command);
 
 int check_special(char * command);
 
-int check_semicolon(char * command);
+long check_semicolon(char * command);
 int run_multiple_commands(char * command);
 
 int check_redirection(char * command);
