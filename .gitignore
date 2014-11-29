@@ -1,3 +1,15 @@
+#Created by https://www.gitignore.io
+
+### vim ###
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~
+
+
+### C ###
 # Object files
 *.o
 *.ko
@@ -27,3 +39,4 @@
 *.i*86
 *.x86_64
 *.hex
+
