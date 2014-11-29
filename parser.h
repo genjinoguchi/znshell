@@ -6,6 +6,8 @@
 #include <string.h>
 
 int parse_input();
+char * strip_spaces(char * input);
+
 int execute_command(char * cmd);
 
 int check_cd(char * command);

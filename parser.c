@@ -8,6 +8,10 @@
 int parse_input(char * input){
   //takes out the newline character
   input = strsep(&input,"\n");
+  input = strip_spaces(input);
+
+  printf("input after stripping: %s\n",input);
+  
   if (check_cd(input)){
     run_cd(input);
   } else if (check_exit(input)){
@@ -17,6 +21,42 @@ int parse_input(char * input){
   }
   
   return 0;
+}
+
+//strips excess space from the in the input and returns the new string
+char * strip_spaces(char * input){
+  int i = 0;
+  //starting from the beginning, get rid of the space
+  while(input[i] == ' '){
+    input = &input[1];
+  }
+
+  //going through the input
+  while(input[i]){
+    //two consecutive spaces
+    if (input[i] == ' ' && input[i+1] == ' '){
+      int numConsec = 2;
+      while(input[i+numConsec] == ' '){
+	numConsec++;
+      }
+      //at this point, i + numConsec is the first non-space character
+      int j = 1;
+      while(input[i+numConsec]){
+	input[i+j] = input[i+numConsec];
+	j++;
+	numConsec++;
+      }
+      //at this point, i + numConsec is the null at the end
+      input[i+j] = 0;
+    }
+    i++;
+  }
+  //end of input
+  if (input[i-1] == ' '){
+    input[i-1] = 0;
+  }
+  
+  return input;
 }
 
 //executes a command
@@ -100,3 +140,4 @@ int check_exit(char * command){
 int run_exit(char * command){
   exit(0);
 }
+
