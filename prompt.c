@@ -9,16 +9,16 @@ int print_prompt(){
 	cwd = malloc(sizeof(char)*256);
 	getcwd(cwd,256);
 	//just the current directory
+	char * cwdcopy = cwd;
 	char * truncated_prompt;
-	truncated_prompt = malloc(sizeof(char)*256);
 
-	while(strchr(cwd,'/')){
-		truncated_prompt = strsep(&cwd,"/");
+	while(strchr(cwdcopy,'/')){
+		truncated_prompt = strsep(&cwdcopy,"/");
 		//printf("%s\n",cwd);
 	}
 
-	printf("%s$: ",cwd);
-
+	printf("%s$: ",cwdcopy);
+	free(cwd);
 	return 0;
 }
 
