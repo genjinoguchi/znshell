@@ -31,7 +31,7 @@ int check_special(char * command)
 	} else if (check_redirection(command)){
 
 	}
-	return 0;
 	*/
+	return 0;	
 }
 

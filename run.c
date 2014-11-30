@@ -1,5 +1,6 @@
 #include "run.h"
 #include "check.h"
+#include "strip_spaces.h"
 
 /*
  * Runs a command.
@@ -12,6 +13,8 @@
 int run( char * cmd )
 {
 	int status;
+	
+	cmd = strip_spaces( cmd );
 
 	if ( check_cd( cmd ) ){
 		status = run_cd( cmd );

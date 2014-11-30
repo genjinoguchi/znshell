@@ -26,7 +26,7 @@ int print_prompt(){
 int get_input(){
 
 	char * input;
-	input = malloc(sizeof(char)*256);
+	input = malloc(256 * sizeof(char));
 	fgets(input,256,stdin);
 
 	//printf("This is what you inputted: %s\n",input);

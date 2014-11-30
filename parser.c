@@ -1,6 +1,7 @@
 #include "prompt.h"
 #include "parser.h"
-#include "run.h"
+#include "redir.h"
+#include "strip_spaces.h"
 
 //this will contain all of the parsing functions
 
@@ -10,54 +11,20 @@ int parse_input(char * input){
 	//takes out the newline character
 	input = strsep(&input,"\n");
 	input = strip_spaces(input);
-
+	
 	//printf("input after stripping: %s\n",input);
 
-	run(input);
+	//Semicolon Chaining
+	char * cmd;
+	int status;
+	do {
+		//stringsep is giving a segfault. aweoifjoaweijfoaijeofijaieowfae
+		cmd = strsep( &input, ";" );
+		status = process_redir( cmd );
+	} while ( input );
 
 	return 0;
 }
-
-//strips excess space from the in the input and returns the new string
-char * strip_spaces(char * input){
-	int i = 0;
-	//starting from the beginning, get rid of the space
-	while(input[i] == ' '){
-		input = &input[1];
-	}
-
-	//going through the input
-	while(input[i]){
-		//two consecutive spaces
-		if (input[i] == ' ' && input[i+1] == ' '){
-			int numConsec = 2;
-			while(input[i+numConsec] == ' '){
-				numConsec++;
-			}
-			//at this point, i + numConsec is the first non-space character
-			int j = 1;
-			while(input[i+numConsec]){
-				input[i+j] = input[i+numConsec];
-				j++;
-				numConsec++;
-			}
-			//at this point, i + numConsec is the null at the end
-			input[i+j] = 0;
-		}
-		i++;
-	}
-	//end of input
-	if (input[i-1] == ' '){
-		input[i-1] = 0;
-	}
-
-	return input;
-}
-//check for ;
-long check_semicolon(char * command){
-	return (long)strchr(command,';');
-}
-
 /*
 //run multiple commands with the ;
 int run_multiple_commands(char * command){
