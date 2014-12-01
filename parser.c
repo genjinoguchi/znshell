@@ -10,7 +10,6 @@
 int parse_input(char * input){
 	//takes out the newline character
 	input = strsep(&input,"\n");
-	input = strip_spaces(input);
 	
 	//printf("input after stripping: %s\n",input);
 
@@ -18,8 +17,8 @@ int parse_input(char * input){
 	char * cmd;
 	int status;
 	do {
-		//stringsep is giving a segfault. aweoifjoaweijfoaijeofijaieowfae
 		cmd = strsep( &input, ";" );
+		cmd = strip_spaces(cmd);
 		status = process_redir( cmd );
 	} while ( input );
 

@@ -7,8 +7,7 @@
  * It returns a pointer to the original string and puts NULL in the first place where the search query was found.
  * str is set to the first position after the found search query.
 */
-
-char * stringsep  (char ** str, char * query)
+void stringsep  (char ** str, char ** new, char * query)
 {
 	char * first;	
 	
@@ -19,7 +18,7 @@ char * stringsep  (char ** str, char * query)
 		*str += strlen(query);
 	}
 
-	return first;
+	*new = first;
 }
 
 /*
@@ -35,20 +34,21 @@ char * stringsep  (char ** str, char * query)
  * If the string is not found, then the function returns the original string. min will return -1.
  * There is apparently no way to find the length of a string array. :(
  */
-char * stringsepar (char ** str, char * query[], int * min)
+void stringsepar (char ** str, char ** new, char * query[], int * min)
 {
 	char * first = *str;
 
 	if ( *str == NULL ) {
-		return NULL;
+		*new = NULL;
+		return;
 	}
 
 	int x;
 	char * tmp;
 	char * min_addr = 0;
 	int min_oper;
-	
-	for( x=0; x<10; x++) {
+
+	for( x=0; x<9; x++) {
 		tmp = strstr( *str, query[x] );
 		if (tmp) {
 			if (min_addr == 0) {
@@ -71,7 +71,9 @@ char * stringsepar (char ** str, char * query[], int * min)
 		*min = -1;
 		*str = NULL;
 	}
-	return first;
+
+	//return first;
+	*new = first;
 }
 
 /*

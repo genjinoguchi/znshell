@@ -25,13 +25,13 @@ int print_prompt(){
 //gets the input from the user
 int get_input(){
 
-	char * input;
-	input = malloc(256 * sizeof(char));
+	char input[256];
+	//input = malloc(256 * sizeof(char));
 	fgets(input,256,stdin);
 
 	//printf("This is what you inputted: %s\n",input);
 	parse_input(input);
-	free(input);
+	//free(input);
 	return 0;
 
 }

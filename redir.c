@@ -2,7 +2,7 @@
 #include "run.h"
 #include "strip_spaces.h"
 
-char * opers_redir = {
+char * opers_redir[] = {
 	">",
 	"1>",
 	">>",
@@ -29,9 +29,61 @@ char * opers_redir = {
  */
 int process_redir( char * cmd)
 {
-	int status;
+	char * cmd1;
+	int min_oper; // The position of the first operator in opers_redir[]
 
-	status = run( cmd );
+	stringsepar( &cmd, &cmd1, opers_redir, &min_oper);
+
+	int status;
+	switch( min_oper ){
+		case 0:
+		case 1:
+			//>,1>
+			/*
+			filename = stringsepar(&cmd, opers_redir, &min_oper);
+
+			do {
+				filename = strsep(&filename, " ");
+			} while (!filename);
+
+			fd1 = open(filename, O_TRUNC | O_CREAT, 0644);
+			status = run_exec(cmd1,fd1,STDOUT_FILENO); 
+			*/
+			break;
+			
+		case 2:
+		case 3:
+			//>>,1>>
+			break;
+		case 4:
+			//2>
+
+			break;
+		case 5:
+			//2>>
+
+			break;
+		case 6:
+			//&>
+
+			break;
+		case 7:
+			//&>>
+
+			break;
+		case 8:
+			//<
+
+			break;
+		case 9:
+			//|
+			/*
+			status = run_exec(cmd1, STDIN_FILENO, STDOUT_FILENO); 
+			*/
+			break;
+		default:
+			status = run(cmd1);
+	}
 
 	return status;
 }

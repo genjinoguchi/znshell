@@ -3,6 +3,6 @@
 
 #include <string.h>
 
-char * stringsep( char **, char * );
-char * stringsepar( char **, char **, int * );
+void stringsep( char **, char **, char * );
+void stringsepar( char **, char **, char **, int * );
 
