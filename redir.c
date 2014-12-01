@@ -134,9 +134,10 @@ int run_pipe( char * cmd1, char * cmd2 )
 		close(STDOUT_FILENO);
 		dup(pfd[WRITE_END]);
 		close(pfd[READ_END]);
-		execlp("ls","ls",NULL);
+		status = process_redir( cmd1 );
+		//execlp("ls","ls",NULL);
 		//status = process_redir(cmd2);
-		exit(0);
+		exit(status);
 	}
 
 	if (f1 = fork()) {
@@ -147,8 +148,9 @@ int run_pipe( char * cmd1, char * cmd2 )
 		close(STDIN_FILENO);
 		dup(pfd[READ_END]);
 		close(pfd[WRITE_END]);
-		execlp("grep","grep","check",NULL);
-		exit(0);
+		status = process_redir( cmd2 );
+		//execlp("grep","grep","check",NULL);
+		exit(status);
 	}
 	
 	/*
