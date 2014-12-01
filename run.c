@@ -13,7 +13,7 @@
 int run( char * cmd )
 {
 	int status;
-	
+
 	cmd = strip_spaces( cmd );
 
 	if ( check_cd( cmd ) ){
@@ -77,6 +77,14 @@ int run_exec(char * cmd)
 	
 	return status;
 }
+
+/*
+void run_exec( char * cmd )
+{
+	parse_exec(cmd, args); 
+
+}
+*/
 
 //changes directory into the directory specified by the argument
 int run_cd(char * command){

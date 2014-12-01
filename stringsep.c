@@ -36,8 +36,8 @@ void stringsep  (char ** str, char ** new, char * query)
  */
 void stringsepar (char ** str, char ** new, char * query[], int * min)
 {
-	char * first = *str;
-
+	*new = *str;
+	
 	if ( *str == NULL ) {
 		*new = NULL;
 		return;
@@ -48,7 +48,7 @@ void stringsepar (char ** str, char ** new, char * query[], int * min)
 	char * min_addr = 0;
 	int min_oper;
 
-	for( x=0; x<9; x++) {
+	for( x=0; x<10; x++) {
 		tmp = strstr( *str, query[x] );
 		if (tmp) {
 			if (min_addr == 0) {
@@ -71,9 +71,6 @@ void stringsepar (char ** str, char ** new, char * query[], int * min)
 		*min = -1;
 		*str = NULL;
 	}
-
-	//return first;
-	*new = first;
 }
 
 /*
