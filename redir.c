@@ -45,7 +45,6 @@ int process_redir( char * cmd )
 int file_redir( char * cmd)
 {
 	char * cmd1;
-	char * cmd2;
 	int min_oper; // The position of the first operator in opers_redir[]
 	int tmp;
 
@@ -60,9 +59,8 @@ int file_redir( char * cmd)
 			//>,1>
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
 			
-			status = run( cmd1 );
+			status = run( cmd1, filename, stdout, trunc_file);
 			break;
-			
 		case 2:
 		case 3:
 			//>>,1>>
@@ -95,10 +93,63 @@ int file_redir( char * cmd)
 
 			break;
 		default:
-			status = run(cmd1);
+			status = run(cmd1, NULL, 0, append_file);
 	}
 
 	return status;
+}
+
+//I KEEP GETTING INVALID ARGUMENT ERROR
+//I HAVE NO FREAKING IDEA WHY
+//WILBUR PLEASE HELP
+//PLEAAAAAAAASE
+void append_file(char * filename,int fd2)
+{
+	int fd1;
+	fd1 = open(filename, O_CREAT | O_WRONLY | O_APPEND, 0644);
+	if (errno) {
+		fprintf(stderr, "-znshell: %s (%d)\n",strerror(errno), errno);
+		//exit(errno);
+	}
+	errno = 0;
+	dup2(fd1, fd2);
+}
+
+void append_all(char * filename, int fd2)
+{
+	int fd1;
+	errno = 0;
+	fd1 = open(filename, O_CREAT | O_WRONLY | O_APPEND);
+	if (errno) {
+		fprintf(stderr, "-znshell: %s (%d)\n",strerror(errno), errno);
+		exit(errno);
+	}
+	errno = 0;
+	dup2(fd1, STDERR_FILENO);
+	dup2(fd1, STDOUT_FILENO);
+}
+
+void trunc_file(char * filename,int fd2)
+{	
+	int fd1;
+	fd1 = open(filename,O_WRONLY | O_CREAT,0644);
+	if(errno){
+		printf("-znshell: %s (%d)\n",strerror(errno), errno);
+	}
+	dup2(fd1, fd2);
+}
+
+void trunc_all(char * filename, int fd2)
+{
+	int fd1;
+	fd1 = open(filename, O_CREAT | O_WRONLY | O_TRUNC, 0644);
+	if (errno) {
+		fprintf(stderr, "-znshell: %s (%d)\n",strerror(errno), errno);
+		exit(errno);
+	}
+	errno = 0;
+	dup2(fd1, STDOUT_FILENO);
+	dup2(fd1, STDERR_FILENO);
 }
 
 /*
@@ -120,14 +171,15 @@ int run_pipe( char * cmd1, char * cmd2 )
 			fprintf(stderr, "-znshell: %s (%d)", strerror(errno),errno);
 		}
 		close(fd[READ_END]);
-		run_exec(cmd1);
+		//run_exec(cmd1);
 		wait(&status);
 	} else {
 		//Child	
 		dup2(fd[READ_END], STDIN_FILENO);
 		close(fd[WRITE_END]);
 		printf("execing in child \n");
-		status = run_exec(cmd2);
+		//status = run_exec(cmd2);
+		exit(0);
 	}
 
 

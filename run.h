@@ -5,7 +5,9 @@
 #include <errno.h>
 #include <string.h>
 
-int run( char * );
-int run_exec( char * );
-int run_exit( char * );
-int run_cd( char * );
+#include "redir.h"
+
+int run( char *, char *, int, REDIR_FUNC);
+int run_exec( char *, char *, int, REDIR_FUNC );
+int run_exit( char *, char *, int, REDIR_FUNC );
+int run_cd( char *, char *, int, REDIR_FUNC );

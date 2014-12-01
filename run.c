@@ -1,4 +1,5 @@
 #include "run.h"
+#include "redir.h"
 #include "check.h"
 #include "strip_spaces.h"
 
@@ -9,19 +10,20 @@
  * 	* All exec-able functions
  * 	* cd
  * 	* exit
+ * Supports redirection: if redirection not wanted, put NULL for filename
  */
-int run( char * cmd )
+int run( char * cmd, char * filename, int fd, REDIR_FUNC redir)
 {
 	int status;
 
 	cmd = strip_spaces( cmd );
 
 	if ( check_cd( cmd ) ){
-		status = run_cd( cmd );
+		status = run_cd( cmd, filename, fd, redir );
 	} else if ( check_exit( cmd ) ){
-		status = run_exit( cmd );
+		status = run_exit( cmd, filename, fd, redir );
 	} else {
-		status = run_exec( cmd );
+		status = run_exec( cmd, filename, fd, redir );
 	}
 	
 	return status;
@@ -53,7 +55,7 @@ void parse_exec( char * cmd, char *** args )
 /*
  * Runs a function using execvp.
  */
-int run_exec(char * cmd)
+int run_exec(char * cmd, char * filename, int fd, REDIR_FUNC redir)
 {
 	char ** args;
 	args = (char **)malloc(256 * sizeof(char *));
@@ -65,6 +67,9 @@ int run_exec(char * cmd)
 	if (f){//parent waits
 		w = wait(&status);
 	} else {//child executes
+		if (filename) {
+			redir(filename, fd);
+		}
 		execvp(args[0],args);
 		if (errno){
 			fprintf(stderr,"-znshell: %s\n",strerror(errno));
@@ -78,16 +83,12 @@ int run_exec(char * cmd)
 	return status;
 }
 
-/*
-void run_exec( char * cmd )
-{
-	parse_exec(cmd, args); 
-
-}
-*/
-
 //changes directory into the directory specified by the argument
-int run_cd(char * command){
+int run_cd(char * command, char * filename, int fd, REDIR_FUNC redir)
+{
+	if (filename) {
+		redir(filename, fd);
+	}
 
 	char * temp;
 	temp = strsep(&command," ");
@@ -106,7 +107,10 @@ int run_cd(char * command){
 	return status;
 }
 
-int run_exit(char * command){
+int run_exit(char * command, char * filename, int fd, REDIR_FUNC redir){
+	if (filename) {
+		redir(filename, fd);
+	}
 	exit(0);
 }
 
