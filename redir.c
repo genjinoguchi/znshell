@@ -11,13 +11,12 @@ char * opers_redir[] = {
 	"2>>",
 	"&>",
 	"&>>",
-	"<",
-	"|"
+	"<"
 };
 
 /*
  * Runs functions. implementations of following redirection operators included.
- * Expects ;, &&, and | to be filtered out.
+ * Expects ;, &&, and || to be filtered out.
  * Operators to include:
  * 	>,1> redirect stdout to a file. Truncates the file.
  * 	>>,1>> redirect stdout to a file. Appends to the file.
@@ -28,7 +27,22 @@ char * opers_redir[] = {
  *	
  * 	
  */
-int process_redir( char * cmd)
+int process_redir( char * cmd )
+{
+	char * cmd1;
+	int status;
+
+	cmd1 = strsep(&cmd, "|"); //Split the input command by the first occurence of |
+
+	if( cmd ) {
+		status = run_pipe(cmd1, cmd);
+	} else {
+		status = file_redir( cmd1 );
+	}
+	return status;	
+}
+
+int file_redir( char * cmd)
 {
 	char * cmd1;
 	char * cmd2;
@@ -36,7 +50,6 @@ int process_redir( char * cmd)
 	int tmp;
 
 	stringsepar( &cmd, &cmd1, opers_redir, &min_oper);
-	printf("min_oper: %d\n",min_oper);
 
 	int status;
 	int fd1, fd2;
@@ -45,7 +58,7 @@ int process_redir( char * cmd)
 		case 0:
 		case 1:
 			//>,1>
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
+			stringsepar( &cmd, &filename, opers_redir, &tmp);
 			
 			status = run( cmd1 );
 			break;
@@ -53,40 +66,33 @@ int process_redir( char * cmd)
 		case 2:
 		case 3:
 			//>>,1>>
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
+			stringsepar( &cmd, &filename, opers_redir, &tmp);
 			
 			break;
 		case 4:
 			//2>
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
+			stringsepar( &cmd, &filename, opers_redir, &tmp);
 
 			break;
 		case 5:
 			//2>>
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
+			stringsepar( &cmd, &filename, opers_redir, &tmp);
 
 			break;
 		case 6:
 			//&>
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
+			stringsepar( &cmd, &filename, opers_redir, &tmp);
 
 			break;
 		case 7:
 			//&>>
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
+			stringsepar( &cmd, &filename, opers_redir, &tmp);
 
 			break;
 		case 8:
 			//<
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
+			stringsepar( &cmd, &filename, opers_redir, &tmp);
 
-			break;
-		case 9:
-			//|
-			stringsepar( &cmd, &cmd2, opers_redir, &tmp);
-			printf("cmd1: ~%s~\n",cmd1);
-			printf("cmd2: ~%s~\n",cmd2);
-			status = run_pipe(cmd1, cmd2);
 			break;
 		default:
 			status = run(cmd1);
@@ -95,6 +101,9 @@ int process_redir( char * cmd)
 	return status;
 }
 
+/*
+ * Still doesn't work.
+ */
 int run_pipe( char * cmd1, char * cmd2 )
 {
 	int fd[2];
