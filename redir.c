@@ -34,6 +34,7 @@ int process_redir( char * cmd )
 
 	cmd1 = strsep(&cmd, "|"); //Split the input command by the first occurence of |
 
+	//Trying to recurse this
 	if( cmd ) {
 		status = run_pipe(cmd1, cmd);
 	} else {
@@ -113,10 +114,70 @@ int file_redir( char * cmd)
 	return status;
 }
 
-//I KEEP GETTING INVALID ARGUMENT ERROR
-//I HAVE NO FREAKING IDEA WHY
-//WILBUR PLEASE HELP
-//PLEAAAAAAAASE
+/*
+ * Still doesn't work.
+ */
+int run_pipe( char * cmd1, char * cmd2 )
+{
+	int pfd[2];
+	int f1;
+	int f2;
+	int pid;
+	pipe(pfd);
+	int status;
+
+	if (f2 = fork()) {
+		waitpid( f2, &status, NULL);
+		//close(pfd[READ_END]);
+		//close(pfd[WRITE_END]);
+	} else {
+		close(STDOUT_FILENO);
+		dup(pfd[WRITE_END]);
+		close(pfd[READ_END]);
+		execlp("ls","ls",NULL);
+		//status = process_redir(cmd2);
+		exit(0);
+	}
+
+	if (f1 = fork()) {
+		close(pfd[READ_END]);
+		close(pfd[WRITE_END]);
+		waitpid( f1, &status, NULL );
+	} else {
+		close(STDIN_FILENO);
+		dup(pfd[READ_END]);
+		close(pfd[WRITE_END]);
+		execlp("grep","grep","check",NULL);
+		exit(0);
+	}
+	
+	/*
+	switch (pid = fork()) {
+
+		case 0: //child
+			close(STDOUT_FILENO);
+			dup(pfd[WRITE_END]);
+			close(pfd[READ_END]);
+			execlp("ls","ls",NULL);
+			//status = process_redir(cmd2);
+			exit(status);
+		default: //Parent
+			close(STDIN_FILENO);
+			dup(pfd[READ_END]);
+			close(pfd[WRITE_END]);
+			//process_redir(cmd2);
+			execlp("cowsay","cowsay",NULL);
+			wait(&status);
+			//return process_redir(cmd1);
+		case -1:
+			perror("fork");
+			exit(1);
+	}
+*/
+
+}
+
+/*
 void append_file(char * filename,int fd2)
 {
 	int fd1;
@@ -165,37 +226,4 @@ void trunc_all(char * filename, int fd2)
 	dup2(fd1, STDOUT_FILENO);
 	dup2(fd1, STDERR_FILENO);
 }
-
-/*
- * Still doesn't work.
- */
-int run_pipe( char * cmd1, char * cmd2 )
-{
-	int fd[2];
-	int f;
-
-	pipe(fd);
-
-	int status;
-	f = fork();
-	if (f) {
-		//Parent
-		dup2(fd[WRITE_END], STDOUT_FILENO);
-		if( errno ){
-			fprintf(stderr, "-znshell: %s (%d)", strerror(errno),errno);
-		}
-		close(fd[READ_END]);
-		//run_exec(cmd1);
-		wait(&status);
-	} else {
-		//Child	
-		dup2(fd[READ_END], STDIN_FILENO);
-		close(fd[WRITE_END]);
-		printf("execing in child \n");
-		//status = run_exec(cmd2);
-		exit(0);
-	}
-
-
-	return status;
-}
+*/
