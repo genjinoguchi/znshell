@@ -51,49 +51,63 @@ int file_redir( char * cmd)
 	stringsepar( &cmd, &cmd1, opers_redir, &min_oper);
 
 	int status;
-	int fd1, fd2;
+	int fd1;
 	char * filename;
+	int fd[2];
 	switch( min_oper ){
 		case 0:
 		case 1:
 			//>,1>
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
-			
-			status = run( cmd1, filename, stdout, trunc_file);
+			fd[0]=STDOUT_FILENO;
+			fd[1]=-1;
+			run( cmd1, filename, fd, O_WRONLY | O_CREAT | O_TRUNC);
 			break;
 		case 2:
 		case 3:
 			//>>,1>>
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
-			
+			fd[0]=STDOUT_FILENO;
+			fd[1]=-1;
+			run( cmd1, filename, fd, O_WRONLY | O_CREAT | O_APPEND );
 			break;
 		case 4:
 			//2>
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
-
+			fd[0]=STDERR_FILENO;
+			fd[1]=-1;
+			run( cmd1, filename, fd, O_WRONLY | O_CREAT | O_TRUNC);
 			break;
 		case 5:
 			//2>>
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
-
+			fd[0]=STDERR_FILENO;
+			fd[1]=-1;
+			run( cmd1, filename, fd, O_WRONLY | O_CREAT | O_APPEND);
 			break;
 		case 6:
 			//&>
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
-
+			fd[0]=STDERR_FILENO;
+			fd[1]=STDOUT_FILENO;
+			run( cmd1, filename, fd, O_WRONLY | O_CREAT | O_TRUNC);
 			break;
 		case 7:
 			//&>>
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
-
+			fd[0]=STDERR_FILENO;
+			fd[1]=STDOUT_FILENO;
+			run( cmd1, filename, fd, O_WRONLY | O_CREAT | O_APPEND);
 			break;
 		case 8:
 			//<
 			stringsepar( &cmd, &filename, opers_redir, &tmp);
-
+			fd[0]=STDIN_FILENO;
+			fd[1]=-1;
+			run( cmd1, filename, fd, O_RDONLY);
 			break;
 		default:
-			status = run(cmd1, NULL, 0, append_file);
+			status = run(cmd1, NULL, fd, 0);
 	}
 
 	return status;

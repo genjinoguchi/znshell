@@ -54,7 +54,7 @@ void stringsepar (char ** str, char ** new, char * query[], int * min)
 			if (min_addr == 0) {
 				min_addr = tmp;
 				min_oper = x;
-			} else if (tmp < min_addr) {
+			} else if (tmp <= min_addr) {
 				min_addr = tmp;
 				min_oper = x;
 			}

@@ -12,18 +12,18 @@
  * 	* exit
  * Supports redirection: if redirection not wanted, put NULL for filename
  */
-int run( char * cmd, char * filename, int fd, REDIR_FUNC redir)
+int run( char * cmd, char * filename, int fd[], int oflag )
 {
 	int status;
 
 	cmd = strip_spaces( cmd );
 
 	if ( check_cd( cmd ) ){
-		status = run_cd( cmd, filename, fd, redir );
+		status = run_cd( cmd, filename, fd, oflag );
 	} else if ( check_exit( cmd ) ){
-		status = run_exit( cmd, filename, fd, redir );
+		status = run_exit( cmd, filename, fd, oflag );
 	} else {
-		status = run_exec( cmd, filename, fd, redir );
+		status = run_exec( cmd, filename, fd, oflag );
 	}
 	
 	return status;
@@ -55,7 +55,7 @@ void parse_exec( char * cmd, char *** args )
 /*
  * Runs a function using execvp.
  */
-int run_exec(char * cmd, char * filename, int fd, REDIR_FUNC redir)
+int run_exec(char * cmd, char * filename, int fd[], int oflag)
 {
 	char ** args;
 	args = (char **)malloc(256 * sizeof(char *));
@@ -67,9 +67,24 @@ int run_exec(char * cmd, char * filename, int fd, REDIR_FUNC redir)
 	if (f){//parent waits
 		w = wait(&status);
 	} else {//child executes
+		
 		if (filename) {
-			redir(filename, fd);
+			int fd1 = open( filename, oflag, 0644);
+			
+			if( errno ){
+				if( errno != 22){
+					printf("-znshell: %s (%d)\n",strerror(errno),errno);
+				}
+			}
+			
+			int x;
+			for(x=0;x<(sizeof(fd)/sizeof(fd[0]));x++) {
+				if( fd[x]>=0 ){// -1 is null
+					dup2(fd1, fd[x]);
+				}
+			}
 		}
+
 		execvp(args[0],args);
 		if (errno){
 			fprintf(stderr,"-znshell: %s\n",strerror(errno));
@@ -84,10 +99,22 @@ int run_exec(char * cmd, char * filename, int fd, REDIR_FUNC redir)
 }
 
 //changes directory into the directory specified by the argument
-int run_cd(char * command, char * filename, int fd, REDIR_FUNC redir)
+int run_cd(char * command, char * filename, int fd[], int oflag)
 {
+	
 	if (filename) {
-		redir(filename, fd);
+		int fd1 = open( filename, oflag, 0644);
+		if( errno ){
+			if (errno != 22) {
+				printf("-znshell: %s (%d)\n",strerror(errno),errno);
+			}
+		}
+		int x;
+		for(x=0;x<(sizeof(fd)/sizeof(fd[0]));x++) {
+			if(fd[x]>=0) {
+				dup2(fd1, fd[x]);
+			}
+		}
 	}
 
 	char * temp;
@@ -107,9 +134,20 @@ int run_cd(char * command, char * filename, int fd, REDIR_FUNC redir)
 	return status;
 }
 
-int run_exit(char * command, char * filename, int fd, REDIR_FUNC redir){
+int run_exit(char * command, char * filename, int fd[], int oflag){
 	if (filename) {
-		redir(filename, fd);
+		int fd1 = open( filename, oflag, 0644);
+		if( errno ){
+			if (errno != 22) {
+				printf("-znshell: %s (%d)\n",strerror(errno),errno);
+			}
+		}
+		int x;
+		for(x=0;x<(sizeof(fd)/sizeof(fd[0]));x++) {
+			if(fd[x]>=0){ //set null to be -1
+				dup2(fd1, fd[x]);
+			}
+		}
 	}
 	exit(0);
 }
