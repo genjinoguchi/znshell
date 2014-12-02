@@ -21,6 +21,7 @@ Bugs
 Files and Function Headers
 ==========================
 
+
 //////////////////////////
 check.c - handles all of the checking of the parsed string, including cd and exit
 \\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -39,15 +40,10 @@ Inputs: char * command
 Returns: 1 if command is exit
 	 0 otherwise
 
---------------------------
-int check_special()
---------------------------
-Inputs: char * command
-Returns: Function call to run_multiple_commands
-	 0
 
-Checks specifically for semicolons and redirection symbols and runs the
-relevant functions for the characters
+
+
+
 
 
 /////////////////////////
@@ -70,6 +66,11 @@ Returns: nothing
 
 Calls functions to print out prompts and get and parse inputs
 
+
+
+
+
+
 /////////////////////////
 parser.c - contains all of the parsing functions
 \\\\\\\\\\\\\\\\\\\\\\\\\
@@ -80,7 +81,14 @@ int parse_input()
 Inputs: char * input
 Returns: 0
 
-This is the main parsing function that combines other parsing functions
+This is the main parsing function that combines other parsing functions.
+This is the function that takes care of semicolon chaining of commands (we didn't incorporate && and ;, though we wanted to.)
+
+
+
+
+
+
 
 /////////////////////////
 prompt.c - contains functions relating to the physical prompt
@@ -102,6 +110,11 @@ Returns: 0
 
 This gets the input from the prompt and leads to parsing the input
 
+
+
+
+
+
 /////////////////////////
 redir.c - contains all of the functions dealing with redirection
 \\\\\\\\\\\\\\\\\\\\\\\\\
@@ -112,8 +125,12 @@ int process_redir()
 Inputs: char * cmd
 Returns: status after trying to run redirections
 
-This function leads to the implementation of the pipe function as well as the other general
-redirection function
+This function takes a command after all chaining operators (;, &&, ||) are filtered out in parser.c.
+It first searches for the first occurence of a pipe (|).
+> If the pipe is not found, then it sends the command to file_redir.
+> If it finds a pipe, then it sends both commands to run_pipe();
+
+The function is designed to be run recursively-- more on that later.
 
 -------------------------
 int file_redir()
@@ -122,16 +139,30 @@ Inputs: char * cmd
 Returns: status after trying to run redirections
 
 This function goes through all of the different kinds of redirection available in a shell
-and runs the relevant commands associated with each kind of redirection
+and runs the relevant commands associated with each kind of redirection.
+Supported redirection: 
+>, 1>
+>>, 1>>
+2>
+2>>
+&>
+&>>
+<
 
 -------------------------
 int run_pipe()
 -------------------------
 Inputs: char * cmd1, char * cmd2
-Returns: nothing
+Returns: status of the second run command.
 
-This function goes through the piping between two commands such that the output of one command
-becomes the input of the other
+The command uses pipe() functionality, piping stdout of cmd1 into that of cmd2.
+The function works recursively-- it does the necessary file redirection, then calls process_redir on both the first and second commands.
+
+
+
+
+
+
 
 /////////////////////////
 run.c - contains all of the functions that run commands
@@ -145,6 +176,7 @@ Returns: status after attempting to run everything
 
 This function is a conglomerate of all of the other run functions based on the contents of the
 cmd string
+To prevent redirection, send in NULL for filename.
 
 -------------------------
 void parse_exec()
@@ -160,7 +192,8 @@ int run_exec()
 Inputs: char * cmd, char * filename, int fd[], int oflag
 Returns: status after attempting to execute
 
-This function runs a command through execvp and catches errors in case it doesn't run
+This function runs a command through execvp and catches errors in case it doesn't run.
+Supports redirection.
 
 -------------------------
 int run_cd()
@@ -168,7 +201,8 @@ int run_cd()
 Inputs: char * command, char * filename, int fd[], int oflag
 Returns: status after trying to change directory
 
-This function changes directory of the whole function
+This function changes directory of the whole function.
+Supports redirection.
 
 -------------------------
 int run_exit()
@@ -176,7 +210,12 @@ int run_exit()
 Inputs: char * command, char * filename, int fd[], int oflag
 Returns: nothing
 
-Exits the shell
+Exits the shell with 0 status.
+Supports redirection.
+
+
+
+
 
 /////////////////////////
 stringsep.c - contains the stringsepar function, Genji's personal creation
@@ -188,11 +227,31 @@ void stringsep()
 Inputs: char ** str, char ** new, char ** query
 Returns: nothing
 
+The function works very similarly to strsep.
+It searches through the given string (str) for the first instance of the query.
+It then sets that position to 0, thus cutting the string in two.
+*new is set to the first half of the original string.
+*str is set to the second half, starting from the position right after the found string query.
+If the given input string is given as NULL, then *new will be set to NULL.
+
+
 -------------------------
 void stringsepar()
 -------------------------
 Inputs: char ** str, char ** new, char * query[], int * min
 Returns: nothing
+
+Very similar to stringsep().
+The function parses through the input string (str) and searches for the first occurence of any of the strings in query[]. The length of query is currently hardcoded in the loop for our usage (length 9).
+It sets the position of the found query to NULL, thus cutting the string in two.
+*new is set to the original position of the input string, meaning it takes the first half of the original string.
+*str is set to the first position after the found string query.
+*min is set to the position in the string array (query) of the found string query.
+
+
+
+
+
 
 /////////////////////////
 strip_spaces.c - contains the strip_spaces function, Wilbur's personal creation
